@@ -1,6 +1,14 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="排序号" prop="sortNo">
+        <el-input
+          v-model="queryParams.sortNo"
+          placeholder="请输入排序号"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="名称" prop="planName">
         <el-input
           v-model="queryParams.planName"
@@ -60,6 +68,7 @@
     <el-table v-loading="loading" :data="planList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" align="center" prop="id" />
+      <el-table-column label="排序号" align="center" prop="sortNo" />
       <el-table-column label="名称" align="center" prop="planName" />
       <el-table-column label="状态 0禁用 1启用" align="center" prop="status" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -93,6 +102,9 @@
         <el-form-item label="名称" prop="planName">
           <el-input v-model="form.planName" placeholder="请输入名称" />
         </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入备注" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -124,6 +136,7 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
+    sortNo: null,
     planName: null,
     status: null,
   },

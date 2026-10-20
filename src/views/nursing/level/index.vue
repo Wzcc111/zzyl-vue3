@@ -17,6 +17,22 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="护理费用" prop="fee">
+        <el-input
+          v-model="queryParams.fee"
+          placeholder="请输入护理费用"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="等级说明" prop="description">
+        <el-input
+          v-model="queryParams.description"
+          placeholder="请输入等级说明"
+          clearable
+          @keyup.enter="handleQuery"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -105,6 +121,9 @@
         <el-form-item label="等级说明" prop="description">
           <el-input v-model="form.description" placeholder="请输入等级说明" />
         </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入备注" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -138,6 +157,9 @@ const data = reactive({
     pageSize: 10,
     name: null,
     planId: null,
+    fee: null,
+    status: null,
+    description: null,
   },
   rules: {
     name: [
