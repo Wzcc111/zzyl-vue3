@@ -1,5 +1,10 @@
 import request from '@/utils/request'
 
+// 护理计划表单使用的护理项目选项
+export function getAllProjects() {
+  return request({ url: '/nursing/project/all', method: 'get' })
+}
+
 // 查询护理项目列表
 export function listProject(query) {
   return request({
