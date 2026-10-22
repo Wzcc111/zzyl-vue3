@@ -9,6 +9,11 @@ export function listPlan(query) {
   })
 }
 
+// 护理等级下拉框使用的全部护理计划
+export function getAllNursingPlans() {
+  return request({ url: '/nursing/plan/all', method: 'get' })
+}
+
 // 查询护理计划详细
 export function getPlan(id) {
   return request({

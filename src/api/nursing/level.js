@@ -9,6 +9,11 @@ export function listLevel(query) {
   })
 }
 
+// 查询所有护理等级
+export function listAllLevels() {
+  return request({ url: '/nursing/level/listAll', method: 'get' })
+}
+
 // 查询护理等级详细
 export function getLevel(id) {
   return request({
