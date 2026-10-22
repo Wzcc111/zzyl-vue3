@@ -17,7 +17,7 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['nursing:level:add']">新增</el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['nursing:level:add']">新增护理等级</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
@@ -26,20 +26,22 @@
       <el-table-column label="序号" align="center" type="index" width="80" />
       <el-table-column label="护理等级名称" align="center" prop="name" width="150px" />
       <el-table-column label="执行护理计划" align="center" prop="planName" />
-      <el-table-column label="护理费用(元/月)" align="center" prop="fee" />
+      <el-table-column label="护理费用(元/月)" align="center" prop="fee" min-width="145">
+        <template #default="scope">{{ formatFee(scope.row.fee) }}</template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status" width="120">
         <template #default="scope">
           <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">{{ scope.row.status === 1 ? '启用' :
             '禁用' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="等级说明" align="center" prop="description" />
+      <el-table-column label="等级说明" align="center" prop="description" min-width="155" show-overflow-tooltip />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="230">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" fixed="right" width="230">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
             v-hasPermi="['nursing:level:edit']">修改</el-button>
@@ -56,17 +58,12 @@
 
     <!-- 添加或修改护理等级对话框 -->
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="levelRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="levelRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="等级名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入等级名称" />
-        </el-form-item>
-        <el-form-item label="护理计划" prop="planId">
-          <el-select v-model="form.planId" placeholder="请选择护理计划" style="width: 100%" filterable>
-            <el-option v-for="item in nursingPlanList" :key="item.id" :label="item.planName" :value="item.id" />
-          </el-select>
+          <el-input v-model="form.name" placeholder="请输入等级名称" maxlength="10" show-word-limit />
         </el-form-item>
         <el-form-item label="护理费用" prop="fee">
-          <el-input-number v-model="form.fee" :min="0" :max="99999999.99" :precision="2" :step="100" style="width: 100%" />
+          <el-input-number v-model="form.fee" :min="0" :max="99999999.99" :precision="2" :step="100" placeholder="0.00" style="width: 100%" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -74,8 +71,13 @@
               nls.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="护理计划" prop="planId">
+          <el-select v-model="form.planId" placeholder="请选择护理计划" style="width: 100%" filterable>
+            <el-option v-for="item in nursingPlanList" :key="item.id" :label="item.planName" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="等级说明" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" maxlength="255" show-word-limit placeholder="请输入等级说明" />
+          <el-input v-model="form.description" type="textarea" :rows="3" maxlength="50" show-word-limit placeholder="请输入等级说明" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -104,6 +106,11 @@ const statusOptions = computed(() => nursing_level_status.value.map(item => ({
   label: item.label,
   value: Number(item.value)
 })));
+const containsEmoji = value => /\p{Extended_Pictographic}|[\uFE0F\u200D]/u.test(value || '');
+const validateNoEmoji = (rule, value, callback) => {
+  callback(containsEmoji(value) ? new Error('不能输入表情符号') : undefined);
+};
+const formatFee = value => value == null ? '—' : Number(value).toFixed(2);
 
 const data = reactive({
   form: {},
@@ -115,7 +122,8 @@ const data = reactive({
   },
   rules: {
     name: [
-      { required: true, message: "等级名称不能为空", trigger: "blur" }
+      { required: true, message: "等级名称不能为空", trigger: "blur" },
+      { validator: validateNoEmoji, trigger: "blur" }
     ],
     planId: [
       { required: true, message: "请选择护理计划", trigger: "change" }
@@ -127,7 +135,8 @@ const data = reactive({
       { required: true, message: "状态不能为空", trigger: "change" }
     ],
     description: [
-      { required: true, message: "等级说明不能为空", trigger: "blur" }
+      { required: true, message: "等级说明不能为空", trigger: "blur" },
+      { validator: validateNoEmoji, trigger: "blur" }
     ],
   }
 });
@@ -186,7 +195,7 @@ function handleAdd() {
   reset();
   getAllNursingPlanList();
   open.value = true;
-  title.value = "添加护理等级";
+  title.value = "新增护理等级";
 }
 
 /** 修改按钮操作 */
@@ -261,7 +270,7 @@ function handleExport() {
 const nursingPlanList = ref([]);
 const getAllNursingPlanList = () => {
   getAllNursingPlans().then(response => {
-    nursingPlanList.value = response.data;
+    nursingPlanList.value = (response.data || []).filter(item => Number(item.status) === 1);
   });
 }
 
