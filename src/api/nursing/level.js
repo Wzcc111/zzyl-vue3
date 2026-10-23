@@ -14,6 +14,14 @@ export function listAllLevels() {
   return request({ url: '/nursing/level/listAll', method: 'get' })
 }
 
+// 查询已启用的护理等级，供入住办理选择
+export function getAllLevels() {
+  return request({
+    url: '/nursing/level/all',
+    method: 'get'
+  })
+}
+
 // 查询护理等级详细
 export function getLevel(id) {
   return request({
